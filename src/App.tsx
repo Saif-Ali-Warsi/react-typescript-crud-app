@@ -1,7 +1,9 @@
+import Header from "./components/Header";
+
 function App() {
   return (
     <>
-      <h3>TCRUD</h3>
+      <Header title="I am Header"/>
     </>
   );
 }

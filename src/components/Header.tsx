@@ -7,7 +7,6 @@ function Header({ title }: HeaderProps) {
     <>
       <header>
         <h3>{title}</h3>
-        <h3>TCRUD Application</h3>
       </header>
     </>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import UserCard from "./components/UserCard";
+import UserForm from "./components/UserForm";
 
 type User = {
   id: number;
@@ -43,14 +44,33 @@ function App() {
     fetchUsers();
   }, []);
 
+  async function handleCreateUser(userData: { name: string; email: string }) {
+    const response = await fetch("https://jsonplaceholder.typicode.com/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create User");
+    }
+
+    const createdUser: User = await response.json();
+
+    setUsers((previousUsers) => [createdUser, ...previousUsers]);
+  }
+
   return (
     <>
       <Header title="I am Header" />
-      
+
       {loading && <p>Loading Users...</p>}
 
       {error && <p> Error: {error} </p>}
 
+      <UserForm onCreateUser={handleCreateUser}></UserForm>
 
       {!loading && !error && (
         <div>

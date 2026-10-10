@@ -1,4 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import * as yup from "yup";
@@ -6,6 +7,10 @@ import * as yup from "yup";
 type UserFormValues = {
   name: string;
   email: string;
+};
+
+type User = UserFormValues & {
+  id: number;
 };
 
 const userSchema = yup.object({
@@ -24,9 +29,17 @@ const userSchema = yup.object({
 
 type UserFormProps = {
   onCreateUser: (user: UserFormValues) => Promise<void>;
+  onUpdateUser: (id: number, user: UserFormValues) => Promise<void>;
+  selectedUser: User | null;
+  onCancelEdit: () => void;
 };
 
-function UserForm({ onCreateUser }: UserFormProps) {
+function UserForm({
+  onCreateUser,
+  onUpdateUser,
+  selectedUser,
+  onCancelEdit,
+}: UserFormProps) {
   const {
     register,
     handleSubmit,
@@ -40,15 +53,33 @@ function UserForm({ onCreateUser }: UserFormProps) {
     },
   });
 
+  useEffect(() => {
+    reset({
+      name: selectedUser?.name ?? "",
+      email: selectedUser?.email ?? "",
+    });
+  }, [selectedUser, reset]);
+
   async function onSubmit(data: UserFormValues) {
-    await onCreateUser(data);
-    reset();
+    if (selectedUser) {
+      await onUpdateUser(selectedUser.id, data);
+    } else {
+      await onCreateUser(data);
+    }
+
+    reset({ name: "", email: "" });
+  }
+
+  function handleCancel() {
+    reset({ name: "", email: "" });
+    onCancelEdit();
   }
 
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <h4>Create User</h4>
+        <h4>{selectedUser ? "Edit User" : "Create User"}</h4>
+
         <div>
           <label htmlFor="name">Name</label>
           <input
@@ -75,7 +106,17 @@ function UserForm({ onCreateUser }: UserFormProps) {
 
         <div>
           <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creating user..." : "Create User"}
+            {isSubmitting
+              ? "Saving..."
+              : selectedUser
+                ? "Update User"
+                : "Create User"}
+          </button>
+        </div>
+
+        <div>
+          <button type="button" onClick={handleCancel}>
+            Cancel
           </button>
         </div>
       </form>

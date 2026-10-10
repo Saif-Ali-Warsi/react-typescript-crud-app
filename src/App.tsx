@@ -11,6 +11,7 @@ type User = {
 
 function App() {
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,7 +22,7 @@ function App() {
         setError(null);
 
         const response = await fetch(
-          "https://jsonplaceholder.typicode.com/usqers",
+          "https://jsonplaceholder.typicode.com/users",
         );
 
         if (!response.ok) {
@@ -62,6 +63,36 @@ function App() {
     setUsers((previousUsers) => [createdUser, ...previousUsers]);
   }
 
+  async function handleUpdateUser(
+    id: number,
+    userData: { name: string; email: string },
+  ) {
+    const response = await fetch(
+      `https://jsonplaceholder.typicode.com/users/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "json/application",
+        },
+        body: JSON.stringify(userData),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to update user");
+    }
+
+    const updatedUser: User = await response.json();
+
+    setUsers((previouseUsers) =>
+      previouseUsers.map((user) =>
+        user.id === id ? { ...user, ...updatedUser } : user,
+      ),
+    );
+
+    setSelectedUser(null);
+  }
+
   return (
     <>
       <Header title="I am Header" />
@@ -70,12 +101,21 @@ function App() {
 
       {error && <p> Error: {error} </p>}
 
-      <UserForm onCreateUser={handleCreateUser}></UserForm>
+      <UserForm
+        onCreateUser={handleCreateUser}
+        onUpdateUser={handleUpdateUser}
+        selectedUser={selectedUser}
+        onCancelEdit={() => setSelectedUser(null)}
+      ></UserForm>
 
       {!loading && !error && (
         <div>
           {users.map((user) => (
-            <UserCard key={user.id} user={user}></UserCard>
+            <UserCard
+              key={user.id}
+              user={user}
+              onEdit={setSelectedUser}
+            ></UserCard>
           ))}
         </div>
       )}

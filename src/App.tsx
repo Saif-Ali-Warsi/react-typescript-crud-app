@@ -124,6 +124,14 @@ function App() {
   }
 
   async function handleDeleteUser(id: number) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this user?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     try {
       setError(null);
       setSuccess(null);
@@ -158,9 +166,9 @@ function App() {
 
       {loading && <p>Loading Users...</p>}
 
-      {error && <p> Error: {error} </p>}
+      {error && <p className="error-msg"> Error: {error} </p>}
 
-      {success && <p>{success}</p>}
+      {success && <p className="success-msg">{success}</p>}
 
       <UserForm
         onCreateUser={handleCreateUser}

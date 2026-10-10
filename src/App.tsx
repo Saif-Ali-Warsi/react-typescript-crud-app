@@ -14,6 +14,7 @@ function App() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -48,6 +49,7 @@ function App() {
   async function handleCreateUser(userData: { name: string; email: string }) {
     try {
       setError(null);
+      setSuccess(null);
 
       const response = await fetch(
         "https://jsonplaceholder.typicode.com/users",
@@ -67,6 +69,8 @@ function App() {
       const createdUser: User = await response.json();
 
       setUsers((previousUsers) => [createdUser, ...previousUsers]);
+
+      setSuccess("User Created Successfully!");
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Something went wrong";
@@ -82,6 +86,7 @@ function App() {
   ) {
     try {
       setError(null);
+      setSuccess(null);
 
       const response = await fetch(
         `https://jsonplaceholder.typicode.com/users/${id}`,
@@ -107,6 +112,8 @@ function App() {
       );
 
       setSelectedUser(null);
+
+      setSuccess("User updated successfully!");
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Something went wrong";
@@ -119,6 +126,7 @@ function App() {
   async function handleDeleteUser(id: number) {
     try {
       setError(null);
+      setSuccess(null);
 
       const response = await fetch(
         `https://jsonplaceholder.typicode.com/users/${id}`,
@@ -134,6 +142,8 @@ function App() {
       setUsers((previousUsers) =>
         previousUsers.filter((user) => user.id !== id),
       );
+
+      setSuccess("User deleted successfully!");
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Something went wrong";
@@ -149,6 +159,8 @@ function App() {
       {loading && <p>Loading Users...</p>}
 
       {error && <p> Error: {error} </p>}
+
+      {success && <p>{success}</p>}
 
       <UserForm
         onCreateUser={handleCreateUser}

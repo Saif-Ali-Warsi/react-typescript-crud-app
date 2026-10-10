@@ -46,66 +46,100 @@ function App() {
   }, []);
 
   async function handleCreateUser(userData: { name: string; email: string }) {
-    const response = await fetch("https://jsonplaceholder.typicode.com/users", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    });
+    try {
+      setError(null);
 
-    if (!response.ok) {
-      throw new Error("Failed to create User");
+      const response = await fetch(
+        "https://jsonplaceholder.typicode.com/users",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to create User");
+      }
+
+      const createdUser: User = await response.json();
+
+      setUsers((previousUsers) => [createdUser, ...previousUsers]);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Something went wrong";
+
+      setError(message);
+      throw error;
     }
-
-    const createdUser: User = await response.json();
-
-    setUsers((previousUsers) => [createdUser, ...previousUsers]);
   }
 
   async function handleUpdateUser(
     id: number,
     userData: { name: string; email: string },
   ) {
-    const response = await fetch(
-      `https://jsonplaceholder.typicode.com/users/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "json/application",
+    try {
+      setError(null);
+
+      const response = await fetch(
+        `https://jsonplaceholder.typicode.com/users/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "json/application",
+          },
+          body: JSON.stringify(userData),
         },
-        body: JSON.stringify(userData),
-      },
-    );
+      );
 
-    if (!response.ok) {
-      throw new Error("Failed to update user");
+      if (!response.ok) {
+        throw new Error("Failed to update user");
+      }
+
+      const updatedUser: User = await response.json();
+
+      setUsers((previouseUsers) =>
+        previouseUsers.map((user) =>
+          user.id === id ? { ...user, ...updatedUser } : user,
+        ),
+      );
+
+      setSelectedUser(null);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Something went wrong";
+
+      setError(message);
+      throw error;
     }
-
-    const updatedUser: User = await response.json();
-
-    setUsers((previouseUsers) =>
-      previouseUsers.map((user) =>
-        user.id === id ? { ...user, ...updatedUser } : user,
-      ),
-    );
-
-    setSelectedUser(null);
   }
 
   async function handleDeleteUser(id: number) {
-    const response = await fetch(
-      `https://jsonplaceholder.typicode.com/users/${id}`,
-      {
-        method: "DELETE",
-      },
-    );
+    try {
+      setError(null);
 
-    if (!response.ok) {
-      throw new Error("Failed to delete user");
+      const response = await fetch(
+        `https://jsonplaceholder.typicode.com/users/${id}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete user");
+      }
+
+      setUsers((previousUsers) =>
+        previousUsers.filter((user) => user.id !== id),
+      );
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Something went wrong";
+
+      setError(message);
     }
-
-    setUsers((previousUsers) => previousUsers.filter((user) => user.id !== id));
   }
 
   return (

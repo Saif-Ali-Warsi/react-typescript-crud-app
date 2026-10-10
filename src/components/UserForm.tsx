@@ -61,13 +61,17 @@ function UserForm({
   }, [selectedUser, reset]);
 
   async function onSubmit(data: UserFormValues) {
-    if (selectedUser) {
-      await onUpdateUser(selectedUser.id, data);
-    } else {
-      await onCreateUser(data);
-    }
+    try {
+      if (selectedUser) {
+        await onUpdateUser(selectedUser.id, data);
+      } else {
+        await onCreateUser(data);
+      }
 
-    reset({ name: "", email: "" });
+      reset({ name: "", email: "" });
+    } catch (error) {
+      console.log("Failed to save user:", error);
+    }
   }
 
   function handleCancel() {
